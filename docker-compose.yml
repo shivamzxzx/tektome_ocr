@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn tektome_ocr.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - my_network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - my_network
+
+  celery:
+    build: .
+    command: celery -A tektome_ocr worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - my_network
+
+  celery-beat:
+    build: .
+    command: celery -A tektome_ocr beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - my_network
+  test:
+    build: .
+    command: pytest --disable-warnings
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    networks:
+      - my_network
+  lint:
+    build: .
+    command: flake8 .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    networks:
+      - my_network
+networks:
+  my_network:
+    driver: bridge

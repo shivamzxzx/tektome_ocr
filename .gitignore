@@ -1,0 +1,7 @@
+.env
+.DS_Store
+.idea/*
+file_upload/__pycache__/*
+mock_ocr/__pycache__/*
+auth/__pycache__/*
+tektome_ocr/__pycache__/*
