@@ -12,15 +12,17 @@ import json
 
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 logger = logging.getLogger(__name__)
 
 
-api = NinjaAPI(urls_namespace='mock_ocr')
+api = NinjaAPI(urls_namespace="mock_ocr")
 
 # Redis for rate-limiting and caching
-r = redis.StrictRedis.from_url(os.getenv('REDIS_URL'))
+r = redis.StrictRedis.from_url(os.getenv("REDIS_URL"))
 
 # Rate limiting parameters
 RATE_LIMIT_THRESHOLD = os.getenv("RATE_LIMIT_THRESHOLD")
@@ -36,30 +38,30 @@ def check_rate_limit(client_ip):
 
     if r.exists(client_ip):
         request_data = r.hgetall(client_ip)
-        request_count = int(request_data[b'count'])
-        last_request_time = int(request_data[b'last_request_time'])
+        request_count = int(request_data[b"count"])
+        last_request_time = int(request_data[b"last_request_time"])
 
         if current_time - last_request_time < int(RATE_LIMIT_TIME_WINDOW):
             if request_count >= int(RATE_LIMIT_THRESHOLD):
                 return False
             else:
-                r.hincrby(client_ip, 'count', 1)
+                r.hincrby(client_ip, "count", 1)
         else:
             # Reset count and time if the time window has passed
-            r.hset(client_ip, 'count', 1)
-            r.hset(client_ip, 'last_request_time', current_time)
+            r.hset(client_ip, "count", 1)
+            r.hset(client_ip, "last_request_time", current_time)
     else:
         # First request from the client in this time window
-        r.hset(client_ip, 'count', 1)
-        r.hset(client_ip, 'last_request_time', current_time)
+        r.hset(client_ip, "count", 1)
+        r.hset(client_ip, "last_request_time", current_time)
 
     return True
 
 
-@api.post("/ocr",  auth=JWTAuth())
+@api.post("/ocr", auth=JWTAuth())
 def ocr_endpoint(request, signed_url: str):
     # Get the client IP from the META information
-    client_ip = request.META.get('REMOTE_ADDR')
+    client_ip = request.META.get("REMOTE_ADDR")
 
     # Check if the client is exceeding the rate limit
     if not check_rate_limit(client_ip):
@@ -68,7 +70,9 @@ def ocr_endpoint(request, signed_url: str):
     # Start asynchronous OCR processing
     process_ocr_task.delay(signed_url, 0)
 
-    return {"message": "OCR task submitted successfully. It will be processed asynchronously."}
+    return {
+        "message": "OCR task submitted successfully. It will be processed asynchronously."
+    }
 
 
 # Cache results for 10 minutes
@@ -76,11 +80,13 @@ def cache_query_results(query_key, results):
     serializable_results = []
     for result in results:
         # Extract only the serializable attributes (e.g., 'id' and 'metadata')
-        serializable_results.append({
-            "id": result.get("id"),
-            "score": result.get("score"),
-            "metadata": result.get("metadata")
-        })
+        serializable_results.append(
+            {
+                "id": result.get("id"),
+                "score": result.get("score"),
+                "metadata": result.get("metadata"),
+            }
+        )
 
     r.set(query_key, json.dumps(serializable_results), ex=600)
 
@@ -93,7 +99,7 @@ def get_cached_results(query_key):
     return None
 
 
-@api.post("/extract",  auth=JWTAuth())
+@api.post("/extract", auth=JWTAuth())
 def extract(request, query: str, file_id: str):
     # Create a unique cache key using the query and file_id
     cache_key = f"extract:{query}:{file_id}"
@@ -106,8 +112,7 @@ def extract(request, query: str, file_id: str):
 
     # Use OpenAI to generate embeddings for the query
     embedding_response = openai.Embedding.create(
-        input=query,
-        model="text-embedding-ada-002"
+        input=query, model="text-embedding-ada-002"
     )
     query_embedding = embedding_response["data"][0]["embedding"]
 
@@ -119,7 +124,7 @@ def extract(request, query: str, file_id: str):
         filter={"file_id": file_id},  # Filter by file ID
         top_k=5,  # Retrieve top 5 matches
         include_metadata=True,
-        namespace="ocr"
+        namespace="ocr",
     )
 
     logging.info(f"Search results from Pinecone: {search_results}")
@@ -132,7 +137,7 @@ def extract(request, query: str, file_id: str):
             serializable_match = {
                 "id": match["id"],
                 "score": match["score"],
-                "metadata": metadata
+                "metadata": metadata,
             }
             matching_attributes.append(serializable_match)
             logging.info(f"Extracted metadata: {serializable_match}")

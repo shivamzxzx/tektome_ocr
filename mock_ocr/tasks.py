@@ -16,16 +16,21 @@ index = pc.Index(os.getenv("PINECONE_INDEX"))
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 @shared_task(bind=True)
 def process_ocr_task(self, signed_url: str, retries: int):
-    logger.info(f"Starting OCR processing task for signed_url: {signed_url} with retries: {retries}")
+    logger.info(
+        f"Starting OCR processing task for signed_url: {signed_url} with retries: {retries}"
+    )
 
     # Simulate the OCR process (retrieve JSON from sample file)
     file_id = signed_url.split("/")[-1].replace(".pdf", "")
-    ocr_json_path = os.path.join(os.getcwd(), 'sample_ocr', f"{file_id}.json")
+    ocr_json_path = os.path.join(os.getcwd(), "sample_ocr", f"{file_id}.json")
 
     if not os.path.exists(ocr_json_path):
         logger.error(f"OCR file not found for file_id: {file_id}")
@@ -39,13 +44,12 @@ def process_ocr_task(self, signed_url: str, retries: int):
             ocr_data = json.load(f)
 
         # Extract OCR text
-        ocr_text = ocr_data['analyzeResult']['content']
+        ocr_text = ocr_data["analyzeResult"]["content"]
         logger.info(f"OCR text extracted for file_id: {file_id}")
 
         # Make OpenAI API call for embedding
         embedding_response = openai.Embedding.create(
-            input=ocr_text,
-            model="text-embedding-ada-002"
+            input=ocr_text, model="text-embedding-ada-002"
         )
 
         # Handle response
@@ -54,10 +58,18 @@ def process_ocr_task(self, signed_url: str, retries: int):
         logger.info(f"Generated embeddings for document_id: {document_id}")
 
         # Upsert the embeddings into the Pinecone index
-        index.upsert(vectors=[(document_id, embeddings, {"file_id": document_id})], namespace="ocr")
-        logger.info(f"Embeddings upserted into Pinecone index for document_id: {document_id}")
+        index.upsert(
+            vectors=[(document_id, embeddings, {"file_id": document_id})],
+            namespace="ocr",
+        )
+        logger.info(
+            f"Embeddings upserted into Pinecone index for document_id: {document_id}"
+        )
 
-        return {"message": "OCR and embedding process completed.", "document_id": document_id}
+        return {
+            "message": "OCR and embedding process completed.",
+            "document_id": document_id,
+        }
 
     except RateLimitError:
         logger.warning("Rate limit exceeded. Retrying after a delay...")
