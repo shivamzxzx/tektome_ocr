@@ -22,7 +22,7 @@ api = NinjaAPI(urls_namespace='mock_ocr')
 # Redis for rate-limiting and caching
 r = redis.StrictRedis.from_url(os.getenv('REDIS_URL'))
 
-# Limit to 5 requests per minute
+# Rate limiting parameters
 RATE_LIMIT_THRESHOLD = os.getenv("RATE_LIMIT_THRESHOLD")
 RATE_LIMIT_TIME_WINDOW = os.getenv("RATE_LIMIT_TIME_WINDOW")
 # Initialize Pinecone
