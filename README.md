@@ -40,7 +40,7 @@ curl --location --request POST 'http://127.0.0.1:8000/mock_ocr/ocr?signed_url=ht
 --header 'Authorization: Bearer YOUR TOKEN' \
 --data-raw ''
 ```
-### Demo Image1:
+### Demo Image3:
 ![Alt text](demo_images/2.png)
 
 ## Attribute extraction Endpoint:
@@ -51,7 +51,7 @@ This API will take a query text and file_id as input, perform a vector search, a
 curl --location --request POST 'http://127.0.0.1:8000/mock_ocr/extract?query=abcd&file_id=document_dummy_new' \
 --header 'Authorization: Bearer YOUR_TOKEN'
 ```
-### Demo Image2:
+### Demo Image4:
 ![Alt text](demo_images/3.png)
 
 
