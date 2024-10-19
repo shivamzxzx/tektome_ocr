@@ -54,5 +54,50 @@ curl --location --request POST 'http://127.0.0.1:8000/mock_ocr/extract?query=abc
 ### Demo Image4:
 ![Alt text](demo_images/3.png)
 
+# Steps to start the docker container(macOS):
+
+## Installing Docker and Docker Compose on macOS
+
+## Prerequisites
+
+- Create a file named `.env` in the root directory. Copy all the required environment variables from `sample_env` then paste them in .env and fill in their values.
+- For other operating systems install docker and docker-compose
+
+## Installing Docker Desktop on macOS
+
+1. **Download Docker Desktop:**
+
+   Visit the [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/) page and download the latest version.
+
+2. **Install Docker Desktop:**
+
+   - Open the downloaded `.dmg` file.
+   - Drag and drop Docker into the Applications folder.
+   - Launch Docker from the Applications folder.
+
+3. **Follow the Setup Wizard:**
+
+   - After launching Docker, follow the instructions in the setup wizard to complete the installation.
+
+4. **Verify Docker Installation:**
+
+   Open a terminal and run the following command to check if Docker is installed successfully:
+
+   ```
+   docker --version
+   ```
+   Docker Compose is included with Docker Desktop for Mac. You can verify it by running:
+   ```
+   docker-compose --version
+   ```
+   Change to the directory containing your Django project and docker-compose.yml file:
+   ```
+   docker-compose up --build
+   ```
+   To stop the running Docker containers, you can either press CTRL + C in the terminal where the containers are running, or you can run:
+   ```
+   docker-compose down
+   ```
+
 
  
