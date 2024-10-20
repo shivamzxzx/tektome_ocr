@@ -27,13 +27,19 @@ r = redis.StrictRedis.from_url(os.getenv("REDIS_URL"))
 # Rate limiting parameters
 RATE_LIMIT_THRESHOLD = os.getenv("RATE_LIMIT_THRESHOLD")
 RATE_LIMIT_TIME_WINDOW = os.getenv("RATE_LIMIT_TIME_WINDOW")
-# Initialize Pinecone
+
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX"))
 
 
 # Rate limiting logic
 def check_rate_limit(client_ip):
+    """
+        Check if the client has exceeded the rate limit.
+
+        :param client_ip: IP address of the client making the request.
+        :return: Boolean indicating if the rate limit is exceeded.
+    """
     current_time = int(time.time())
 
     if r.exists(client_ip):
@@ -60,6 +66,13 @@ def check_rate_limit(client_ip):
 
 @api.post("/ocr", auth=JWTAuth())
 def ocr_endpoint(request, signed_url: str):
+    """
+        Endpoint to start the OCR processing task.
+
+        :param request: HTTP request containing client IP for rate limiting.
+        :param signed_url: Signed URL to the file to be processed.
+        :return: JSON response indicating that the OCR task was submitted.
+    """
     # Get the client IP from the META information
     client_ip = request.META.get("REMOTE_ADDR")
 
@@ -77,6 +90,12 @@ def ocr_endpoint(request, signed_url: str):
 
 # Cache results for 10 minutes
 def cache_query_results(query_key, results):
+    """
+        Cache search query results in Redis.
+
+        :param query_key: Unique key combining query and file_id.
+        :param results: Results of the query to be cached.
+    """
     serializable_results = []
     for result in results:
         # Extract only the serializable attributes (e.g., 'id' and 'metadata')
@@ -93,6 +112,12 @@ def cache_query_results(query_key, results):
 
 # Function to retrieve cached results from Redis
 def get_cached_results(query_key):
+    """
+        Get cached query results from Redis.
+
+        :param query_key: Unique key combining query and file_id.
+        :return: Cached results or None if not found.
+    """
     cached_data = r.get(query_key)
     if cached_data:
         return json.loads(cached_data)
@@ -101,6 +126,14 @@ def get_cached_results(query_key):
 
 @api.post("/extract", auth=JWTAuth())
 def extract(request, query: str, file_id: str):
+    """
+        Endpoint to perform vector-based text extraction using Pinecone.
+
+        :param request: HTTP request object.
+        :param query: Search query for the extracted text.
+        :param file_id: ID of the file to search within.
+        :return: JSON response containing the search results.
+    """
     # Create a unique cache key using the query and file_id
     cache_key = f"extract:{query}:{file_id}"
 

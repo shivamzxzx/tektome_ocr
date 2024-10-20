@@ -9,7 +9,7 @@ from celery import shared_task
 from openai.error import RateLimitError
 from pinecone import Pinecone
 
-# Initialize OpenAI and Pinecone
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX"))
@@ -24,6 +24,15 @@ logger = logging.getLogger(__name__)
 
 @shared_task(bind=True)
 def process_ocr_task(self, signed_url: str, retries: int):
+    """
+        Celery task to process OCR, extract text, generate embeddings,
+        and upsert them into Pinecone for a given document.
+
+        :param self: Task instance for retrying
+        :param signed_url: Signed URL of the PDF document
+        :param retries: Number of retry attempts
+        :return: JSON containing status or error message
+    """
     logger.info(
         f"Starting OCR processing task for signed_url: {signed_url} with retries: {retries}"
     )
@@ -79,8 +88,8 @@ def process_ocr_task(self, signed_url: str, retries: int):
 
         retries += 1
         logger.info(f"Retrying... attempt {retries}")
-        time.sleep(10)  # Wait for 10 seconds before retrying
-        return process_ocr_task(self, signed_url, retries)  # Retry the task
+        time.sleep(10)
+        return process_ocr_task(self, signed_url, retries)
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")

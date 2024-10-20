@@ -4,7 +4,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.test import RequestFactory
 from file_upload.views import (
     upload_file,
-)  # Adjust the import based on your project structure
+)
 
 
 @pytest.mark.django_db
