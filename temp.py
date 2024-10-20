@@ -1,8 +1,5 @@
 # import pinecone
 #
-# # Initialize Pinecone
-# pinecone.init(api_key="3639cd5d-f1d6-453d-a47a-7780aba371a4", environment="us-east-1-aws")
-
 # List all indexes
 from pinecone import Pinecone
 
