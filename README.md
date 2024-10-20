@@ -93,6 +93,8 @@ curl --location --request POST 'http://127.0.0.1:8000/mock_ocr/extract?query=abc
    ```
    docker-compose --version
    ```
+## Run your application
+
    Change to the directory containing your Django project and docker-compose.yml file:
    ```
    docker-compose up --build
