@@ -63,7 +63,7 @@ curl --location --request POST 'http://127.0.0.1:8000/mock_ocr/extract?query=abc
 
 ## Prerequisites
 
-- Create a file named `.env` in the root directory. Copy all the required environment variables from `sample_env` then paste them in .env and fill in their values.
+- Create a file named `.env` in the root directory. Copy all the required environment variables from `sample_env` then paste them in `.env` and fill in their values.
 - For other operating systems install docker and docker-compose
 
 ## Installing Docker Desktop on macOS
