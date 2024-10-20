@@ -32,7 +32,7 @@ pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX"))
 
 
-# Rate limiting logic
+
 def check_rate_limit(client_ip):
     """
         Check if the client has exceeded the rate limit.
