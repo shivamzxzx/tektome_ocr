@@ -4,7 +4,7 @@ This repository contains a set of APIs which mocks the OCR (Optical Character Re
 
 ## Token Generation Endpoint:
 
-This API will take the username and password of your Django app's defined users and return you the access and refresh token.
+This API will take the username and password of your Django app's defined users and return you the access and refresh token. After running `python manage.py migrate`, you can create a superuser for your app by running the command `python manage.py createsuperuser` and you can manage your app's users via the Django admin portal at `http://localhost:8000/admin/`.
 
 ```
 curl --location --request POST 'http://localhost:8000/api/token/' \
