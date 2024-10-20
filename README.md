@@ -17,6 +17,7 @@ curl --location --request POST 'http://localhost:8000/api/token/' \
 ### Demo Image1:
 ![Alt text](demo_images/4.png)
 ### Example image on how to use the token:
+You can provide the authentication token in the headers.
 ![Alt text](demo_images/5.png)
 
 ## File Upload Endpoint:
